@@ -42,6 +42,8 @@ jobs:
         run: |
           git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
           git config --global url."https://github.com/".insteadOf "git@github.com:"
+      - name: Configure git to use HTTPS instead of SSH
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -55,6 +57,12 @@ jobs:
           tag_name: ${{ github.event.inputs.tag || github.event.release.tag_name }}
           name: ${{ github.event.inputs.release_name || github.event.release.name }}
           prerelease: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prerelease || github.event.release.prerelease }}
+      - name: Create GitHub release and upload packages
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: ${{ github.event.inputs.release_name }}
+          prerelease: ${{ github.event.inputs.prerelease }}
           generate_release_notes: true
           files: |
             dist/**
